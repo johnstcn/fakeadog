@@ -21,7 +21,7 @@ func (s *DatadogMetricSuite) Test_DatadogMetric() {
 	s.EqualValues("bar", m.Value())
 	s.EqualValues(MetricCount, m.Type())
 	s.EqualValues([]string{"baz"}, m.Tags())
-	s.EqualValues("CNT foo bar [baz]", m.String())
+	s.EqualValues("C foo bar [baz]", m.String())
 }
 
 type DatadogParserSuite struct {
