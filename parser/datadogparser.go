@@ -1,3 +1,4 @@
+// Package parser provides methods for parsing DataDog events from raw UDP packets.
 package parser
 
 import (
@@ -7,30 +8,50 @@ import (
 
 // MetricType is stored as a string.
 type MetricType string
+// ServiceCheckStatus is stored as a string.
 type ServiceCheckStatus string
 
 const (
+	// MetricGauge is a Gauge metric
 	MetricGauge        MetricType = "G"
+	// MetricCount is a Count metric. Increment and Decrement are also Count.
 	MetricCount        MetricType = "C"
+	// MetricHist is a Histogram metric.
 	MetricHist         MetricType = "H"
+	// MetricSet is a Set metric.
 	MetricSet          MetricType = "S"
+	// MetricTiming is a Timing metric in ms.
 	MetricTiming       MetricType = "T"
+	// MetricServiceCheck is a Service check. Not strictly a metric.
 	MetricServiceCheck MetricType = "_SC"
+	// MetricEvent is an Event. Again, not strictly a metric.
 	MetricEvent        MetricType = "_E"
 
+	// ServiceCheckOK is an OK ServiceCheckStatus.
 	ServiceCheckOK       ServiceCheckStatus = "OK"
+	// ServiceCheckWarn is a Warn ServiceCheckStatus
 	ServiceCheckWarn     ServiceCheckStatus = "WARN"
+	// ServiceCheckCritical is a Critical ServiceCheckStatus
 	ServiceCheckCritical ServiceCheckStatus = "CRITICAL"
+	// ServiceCheckUnknown is an Unknown ServiceCheckStatus.
 	ServiceCheckUnknown  ServiceCheckStatus = "UNKNOWN"
 )
 
+// ErrEmptyPayload is returned upon encountering a payload containing only tags, e.g. `#foo,bar`.
 var ErrEmptyPayload = fmt.Errorf("empty payload after stripping tags")
+// ErrInvalidTrailingPipe is returned upon encountering an extra trailing pipe before metric tags.
 var ErrInvalidTrailingPipe = fmt.Errorf("payload should have exactly one trailing pipe before tag start")
+// ErrNoTrailingPipe is returned if there is no trailing pipe before metric tags.
 var ErrNoTrailingPipe = fmt.Errorf("missing trailing pipe")
+// ErrNoTypeSep is returned if a metric payload has no separator between metric type and tags.
 var ErrNoTypeSep = fmt.Errorf("missing type separator")
+// ErrNoValSep is returned if there is no separator between metric name and metric value.
 var ErrNoValSep = fmt.Errorf("missing value separator")
+// ErrInvalidMetricType is returned if an unknown metric type is encountered.
 var ErrInvalidMetricType = fmt.Errorf("invalid metric type")
+// ErrInvalidServiceCheckType is returned if an unknown service check type is encountered.
 var ErrInvalidServiceCheckType = fmt.Errorf("invalid service check type")
+// ErrNoMsgSep is returned upon parsing an event with no separator between the event name and event body.
 var ErrNoMsgSep = fmt.Errorf("missing pipe between event name and body")
 
 var prefixServiceCheck = []byte("_sc|")
@@ -52,6 +73,7 @@ var typeServiceCheckWarn = []byte("1")
 var typeServiceCheckCritical = []byte("2")
 var typeServiceCheckUnknown = []byte("3")
 
+// DatadogMetric is a single metric emitted to DataDog.
 type DatadogMetric interface {
 	Name() string
 	Value() string
@@ -67,26 +89,32 @@ type datadogMetric struct {
 	tags       []string
 }
 
+// Name returns the name of the Datadog metric.
 func (d *datadogMetric) Name() string {
 	return d.name
 }
 
+// Value returns the value of the Datadog metric.
 func (d *datadogMetric) Value() string {
 	return d.value
 }
 
+// Type returns the type of the Datadog metric.
 func (d *datadogMetric) Type() MetricType {
 	return d.metricType
 }
 
+// Tags returns the tags for the Datadog metric.
 func (d *datadogMetric) Tags() []string {
 	return d.tags
 }
 
+// String returns a string representation of a Datadog metric.
 func (d *datadogMetric) String() string {
 	return fmt.Sprintf("%s %s %s %v", d.metricType, d.name, d.value, d.tags)
 }
 
+// DatadogParser parses datadog metrics.
 type DatadogParser interface {
 	Parse(payload []byte) (DatadogMetric, error)
 }
@@ -96,7 +124,8 @@ type datadogParser struct{}
 
 var _ DatadogParser = (*datadogParser)(nil)
 
-func NewDatadogStatsDParser() DatadogParser {
+// NewDatadogParser returns a new instance of DatadogParser
+func NewDatadogParser() DatadogParser {
 	return &datadogParser{}
 }
 
@@ -136,6 +165,7 @@ func (p *datadogParser) Parse(payload []byte) (DatadogMetric, error) {
 	return m, nil
 }
 
+// parseMetric parses a Datadog metric from trimmed, assuming tags have already been stripped.
 func (p *datadogParser) parseMetric(trimmed []byte, tags []string) (DatadogMetric, error) {
 	// metric.name:value|type
 	if len(trimmed) < 1 {
@@ -174,8 +204,9 @@ func (p *datadogParser) parseMetric(trimmed []byte, tags []string) (DatadogMetri
 	}, nil
 }
 
+// parseServiceCheck parses a service check from trimmed, assuming tags have already been stripped.
 func (p *datadogParser) parseServiceCheck(trimmed []byte, tags []string) (DatadogMetric, error) {
-	// 	servicecheck.name|value
+	// servicecheck.name|value
 	if len(trimmed) < 1 {
 		return nil, ErrEmptyPayload
 	}
@@ -207,6 +238,7 @@ func (p *datadogParser) parseServiceCheck(trimmed []byte, tags []string) (Datado
 	}, nil
 }
 
+// parseEvent parses a Datadog event from trimmed, assuming tags have already been stripped.
 func (p *datadogParser) parseEvent(trimmed []byte, tags []string) (DatadogMetric, error) {
 	// _e{name_length,message_length}:name|message
 	if len(trimmed) == 0 {
