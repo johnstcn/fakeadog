@@ -7,8 +7,22 @@ import (
 )
 
 // MetricType is stored as a string.
+// Can be one of:
+// - MetricGauge ("G")
+// - MetricCount ("C")
+// - MetricHist ("H")
+// - MetricSet ("S")
+// - MetricTiming ("T")
+// - MetricServiceCheck ("_SC")
+// - MetricEvent ("_E")
 type MetricType string
+
 // ServiceCheckStatus is stored as a string.
+// Can be one of:
+// - ServiceCheckOK ("OK")
+// - ServiceCheckWarn ("WARN")
+// - ServiceCheckCritical ("CRITICAL")
+// - ServiceCheckUnknown ("UNKNOWN")
 type ServiceCheckStatus string
 
 const (
