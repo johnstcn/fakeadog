@@ -27,44 +27,51 @@ type ServiceCheckStatus string
 
 const (
 	// MetricGauge is a Gauge metric
-	MetricGauge        MetricType = "G"
+	MetricGauge MetricType = "G"
 	// MetricCount is a Count metric. Increment and Decrement are also Count.
-	MetricCount        MetricType = "C"
+	MetricCount MetricType = "C"
 	// MetricHist is a Histogram metric.
-	MetricHist         MetricType = "H"
+	MetricHist MetricType = "H"
 	// MetricSet is a Set metric.
-	MetricSet          MetricType = "S"
+	MetricSet MetricType = "S"
 	// MetricTiming is a Timing metric in ms.
-	MetricTiming       MetricType = "T"
+	MetricTiming MetricType = "T"
 	// MetricServiceCheck is a Service check. Not strictly a metric.
 	MetricServiceCheck MetricType = "_SC"
 	// MetricEvent is an Event. Again, not strictly a metric.
-	MetricEvent        MetricType = "_E"
+	MetricEvent MetricType = "_E"
 
 	// ServiceCheckOK is an OK ServiceCheckStatus.
-	ServiceCheckOK       ServiceCheckStatus = "OK"
+	ServiceCheckOK ServiceCheckStatus = "OK"
 	// ServiceCheckWarn is a Warn ServiceCheckStatus
-	ServiceCheckWarn     ServiceCheckStatus = "WARN"
+	ServiceCheckWarn ServiceCheckStatus = "WARN"
 	// ServiceCheckCritical is a Critical ServiceCheckStatus
 	ServiceCheckCritical ServiceCheckStatus = "CRITICAL"
 	// ServiceCheckUnknown is an Unknown ServiceCheckStatus.
-	ServiceCheckUnknown  ServiceCheckStatus = "UNKNOWN"
+	ServiceCheckUnknown ServiceCheckStatus = "UNKNOWN"
 )
 
 // ErrEmptyPayload is returned upon encountering a payload containing only tags, e.g. `#foo,bar`.
 var ErrEmptyPayload = fmt.Errorf("empty payload after stripping tags")
+
 // ErrInvalidTrailingPipe is returned upon encountering an extra trailing pipe before metric tags.
 var ErrInvalidTrailingPipe = fmt.Errorf("payload should have exactly one trailing pipe before tag start")
+
 // ErrNoTrailingPipe is returned if there is no trailing pipe before metric tags.
 var ErrNoTrailingPipe = fmt.Errorf("missing trailing pipe")
+
 // ErrNoTypeSep is returned if a metric payload has no separator between metric type and tags.
 var ErrNoTypeSep = fmt.Errorf("missing type separator")
+
 // ErrNoValSep is returned if there is no separator between metric name and metric value.
 var ErrNoValSep = fmt.Errorf("missing value separator")
+
 // ErrInvalidMetricType is returned if an unknown metric type is encountered.
 var ErrInvalidMetricType = fmt.Errorf("invalid metric type")
+
 // ErrInvalidServiceCheckType is returned if an unknown service check type is encountered.
 var ErrInvalidServiceCheckType = fmt.Errorf("invalid service check type")
+
 // ErrNoMsgSep is returned upon parsing an event with no separator between the event name and event body.
 var ErrNoMsgSep = fmt.Errorf("missing pipe between event name and body")
 
