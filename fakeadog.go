@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	host := flag.String("host", "", "address to bind to, default is localhost")
+	host := flag.String("host", "localhost", "address to bind to, default is localhost")
 	port := flag.Int("port", 8125, "port to bind to, default is 8125")
 	flag.Parse()
 
@@ -28,6 +28,7 @@ func main() {
 		os.Exit(1)
 	}
 
+	log.Println("[INFO] listening on", hostport)
 	// from datadog-go/statsd
 	buf := make([]byte, 65467)
 	p := parser.NewDatadogParser()
