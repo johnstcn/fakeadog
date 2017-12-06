@@ -30,7 +30,7 @@ func main() {
 
 	// from datadog-go/statsd
 	buf := make([]byte, 65467)
-	p := parser.NewDatadogStatsDParser()
+	p := parser.NewDatadogParser()
 
 	defer conn.Close()
 	for {
