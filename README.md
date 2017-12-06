@@ -1,6 +1,7 @@
 # Fakeadog
 
 [![Documentation](https://godoc.org/github.com/johnstcn/fakeadog?status.svg)](http://godoc.org/github.com/johnstcn/fakeadog/parser)
+[![codecov](https://codecov.io/gh/johnstcn/fakeadog/branch/master/graph/badge.svg)](https://codecov.io/gh/johnstcn/fakeadog)
 [![Go Report Card](https://goreportcard.com/badge/github.com/johnstcn/fakeadog)](https://goreportcard.com/report/github.com/johnstcn/fakeadog)
 [![Build Status](https://travis-ci.org/johnstcn/fakeadog.svg?branch=master)](https://travis-ci.org/johnstcn/fakeadog)
 
