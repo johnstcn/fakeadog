@@ -27,3 +27,8 @@ func main() {
     fmt.Printf("%s\n", metric) # C myap.frobble.count 1 [app:myapp hostname:myhost]
 }
 ```
+
+Example docker usage:
+```
+$ docker run --rm --net=host johnstcn/fakeadog fakeadog
+```
