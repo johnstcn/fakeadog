@@ -30,5 +30,11 @@ func main() {
 
 Example docker usage:
 ```
-$ docker run --rm --net=host johnstcn/fakeadog fakeadog
+$ docker run --rm --net=host johnstcn/fakeadog
+```
+
+You can also pull the image from [Docker Hub](https://hub.docker.com/r/johnstcn/fakeadog/)
+
+```
+$ docker pull johnstcn/fakeadog:latest
 ```
