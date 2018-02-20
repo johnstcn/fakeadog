@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
 	"log"
@@ -53,13 +54,21 @@ func main() {
 	defer conn.Close()
 	for {
 		n, _, err := conn.ReadFromUDP(buf)
-		payload := buf[:n]
-		m, err := p.Parse(payload)
 		if err != nil {
-			log.Println("[ERROR] parsing payload:", string(payload))
-			log.Println("[ERROR]", err)
+			log.Println("[ERROR] reading from udp:", err)
 			continue
 		}
-		fmt.Println("[INFO]", m)
+		payload := buf[:n]
+		// payload may contain multiple metrics separated by newlines
+		splitted := bytes.Split(payload, []byte("\n"))
+		for _, sp := range splitted {
+			m, err := p.Parse(sp)
+			if err != nil {
+				log.Println("[ERROR] parsing payload:", string(payload))
+				log.Println("[ERROR]", err)
+				continue
+			}
+			fmt.Println("[INFO]", m)
+		}
 	}
 }
