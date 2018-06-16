@@ -1,6 +1,7 @@
 language: go
 
 go:
+  - 1.8.x
   - 1.9.x
   - 1.10.x
 
@@ -8,8 +9,8 @@ before_install:
   - go get -t -v ./...
 
 script:
-  - go build ./...
-  - go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
+  - go build github.com/johnstcn/fakeadog/cmd/fakeadog
+  - go test -v -race -coverprofile=coverage.txt -covermode=atomic github.com/johnstcn/fakeadog/pkg/parser
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
