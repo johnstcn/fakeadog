@@ -3,14 +3,11 @@ WORKDIR /go/src/github.com/johnstcn/fakeadog
 ADD . /go/src/github.com/johnstcn/fakeadog
 RUN set -x && \
     apk add -q --update && \
-    apk add -q curl git
-RUN set -x && \
-    curl -fsSL -o /usr/local/bin/dep https://github.com/golang/dep/releases/download/v0.4.1/dep-linux-amd64 && \
-    chmod +x /usr/local/bin/dep
+    apk add -q tree
 RUN set -x && \
     go version && \
     go env && \
-    dep ensure -v && \
+    tree /go && \
     CGO_ENABLED=0 go test -v ./... && \
     CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo github.com/johnstcn/fakeadog/cmd/fakeadog
 
