@@ -1,7 +1,7 @@
 FROM golang:alpine as builder
 WORKDIR /go/src/github.com/johnstcn/fakeadog
 ADD . /go/src/github.com/johnstcn/fakeadog
-RUN CGO_ENABLED=0 go test -v ./... && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo github.com/johnstcn/fakeadog/cmd/fakeadog
+RUN go env && CGO_ENABLED=0 go test -v ./... && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo github.com/johnstcn/fakeadog/cmd/fakeadog
 
 FROM alpine:latest
 MAINTAINER Cian Johnston <public@cianjohnston.ie>
