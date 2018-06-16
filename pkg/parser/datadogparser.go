@@ -8,14 +8,36 @@ import (
 
 // MetricType is stored as a string.
 // Can be one of:
-// - MetricGauge ("G")
-// - MetricCount ("C")
-// - MetricHist ("H")
-// - MetricSet ("S")
-// - MetricTiming ("T")
-// - MetricServiceCheck ("_SC")
-// - MetricEvent ("_E")
+// - MetricGauge ("G") - gauge
+// - MetricCount ("C") - count
+// - MetricHist ("H") - histogram
+// - MetricSet ("S") - set
+// - MetricTiming ("T") - timing
+// - MetricServiceCheck ("_SC") - service check
+// - MetricEvent ("_E") - event
 type MetricType string
+
+// String implements Stringer for a MetricType to provide more human-friendly metric type descriptions.
+func (m MetricType) String() string {
+	switch m {
+	case MetricEvent:
+		return "EVENT"
+	case MetricGauge:
+		return "GAUGE"
+	case MetricCount:
+		return "COUNT"
+	case MetricHist:
+		return "HISTOGRAM"
+	case MetricSet:
+		return "SET"
+	case MetricTiming:
+		return "TIMING"
+	case MetricServiceCheck:
+		return "SERVICE_CHECK"
+	default:
+		return "UNKNOWN"
+	}
+}
 
 // ServiceCheckStatus is stored as a string.
 // Can be one of:
