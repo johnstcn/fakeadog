@@ -11,6 +11,7 @@ before_install:
 
 script:
   - go test -race -coverprofile=coverage.txt -covermode=atomic github.com/johnstcn/fakeadog/pkg/parser
+  - go build github.com/johnstcn/fakeadog/cmd/fakeadog
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
