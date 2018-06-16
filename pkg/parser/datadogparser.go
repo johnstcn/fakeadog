@@ -94,50 +94,22 @@ var typeServiceCheckWarn = []byte("1")
 var typeServiceCheckCritical = []byte("2")
 var typeServiceCheckUnknown = []byte("3")
 
-// DatadogMetric is a single metric emitted to DataDog.
-type DatadogMetric interface {
-	Name() string
-	Value() string
-	Type() MetricType
-	Tags() []string
-	String() string
-}
-
-type datadogMetric struct {
-	name       string
-	value      string
-	metricType MetricType
-	tags       []string
-}
-
-// Name returns the name of the Datadog metric.
-func (d *datadogMetric) Name() string {
-	return d.name
-}
-
-// Value returns the value of the Datadog metric.
-func (d *datadogMetric) Value() string {
-	return d.value
-}
-
-// Type returns the type of the Datadog metric.
-func (d *datadogMetric) Type() MetricType {
-	return d.metricType
-}
-
-// Tags returns the tags for the Datadog metric.
-func (d *datadogMetric) Tags() []string {
-	return d.tags
+// DatadogMetric is a single DataDog metric.
+type DatadogMetric struct {
+	Name  string
+	Value string
+	Type  MetricType
+	Tags  []string
 }
 
 // String returns a string representation of a Datadog metric.
-func (d *datadogMetric) String() string {
-	return fmt.Sprintf("%s %s %s %v", d.metricType, d.name, d.value, d.tags)
+func (d *DatadogMetric) String() string {
+	return fmt.Sprintf("%s %s %s %v", d.Type, d.Name, d.Value, d.Tags)
 }
 
 // DatadogParser parses datadog metrics.
 type DatadogParser interface {
-	Parse(payload []byte) (DatadogMetric, error)
+	Parse(payload []byte) (*DatadogMetric, error)
 }
 
 // datadogParser implements DatadogParser
@@ -151,8 +123,8 @@ func NewDatadogParser() DatadogParser {
 }
 
 // Parse parses a raw UDP message and returns a DatadogMetric or an error if parsing unsuccessful.
-func (p *datadogParser) Parse(payload []byte) (DatadogMetric, error) {
-	var m DatadogMetric
+func (p *datadogParser) Parse(payload []byte) (*DatadogMetric, error) {
+	var m *DatadogMetric
 	var err error
 	metricTags, tagStart := p.parseTags(payload)
 
@@ -187,7 +159,7 @@ func (p *datadogParser) Parse(payload []byte) (DatadogMetric, error) {
 }
 
 // parseMetric parses a Datadog metric from trimmed, assuming tags have already been stripped.
-func (p *datadogParser) parseMetric(trimmed []byte, tags []string) (DatadogMetric, error) {
+func (p *datadogParser) parseMetric(trimmed []byte, tags []string) (*DatadogMetric, error) {
 	// metric.name:value|type
 	if len(trimmed) < 1 {
 		return nil, ErrEmptyPayload
@@ -217,16 +189,16 @@ func (p *datadogParser) parseMetric(trimmed []byte, tags []string) (DatadogMetri
 	metricName := string(trimmed[0:sepIdx])
 	metricValue := string(trimmed[sepIdx+1 : typeStart])
 
-	return &datadogMetric{
-		name:       metricName,
-		value:      metricValue,
-		metricType: metricType,
-		tags:       tags,
+	return &DatadogMetric{
+		Name:  metricName,
+		Value: metricValue,
+		Type:  metricType,
+		Tags:  tags,
 	}, nil
 }
 
 // parseServiceCheck parses a service check from trimmed, assuming tags have already been stripped.
-func (p *datadogParser) parseServiceCheck(trimmed []byte, tags []string) (DatadogMetric, error) {
+func (p *datadogParser) parseServiceCheck(trimmed []byte, tags []string) (*DatadogMetric, error) {
 	// servicecheck.name|value
 	if len(trimmed) < 1 {
 		return nil, ErrEmptyPayload
@@ -251,16 +223,16 @@ func (p *datadogParser) parseServiceCheck(trimmed []byte, tags []string) (Datado
 
 	scName := string(trimmed[:typeStart])
 
-	return &datadogMetric{
-		name:       scName,
-		value:      string(scType),
-		metricType: MetricServiceCheck,
-		tags:       tags,
+	return &DatadogMetric{
+		Name:  scName,
+		Value: string(scType),
+		Type:  MetricServiceCheck,
+		Tags:  tags,
 	}, nil
 }
 
 // parseEvent parses a Datadog event from trimmed, assuming tags have already been stripped.
-func (p *datadogParser) parseEvent(trimmed []byte, tags []string) (DatadogMetric, error) {
+func (p *datadogParser) parseEvent(trimmed []byte, tags []string) (*DatadogMetric, error) {
 	// _e{name_length,message_length}:name|message
 	if len(trimmed) == 0 {
 		return nil, ErrEmptyPayload
@@ -278,11 +250,11 @@ func (p *datadogParser) parseEvent(trimmed []byte, tags []string) (DatadogMetric
 
 	evtName := string(trimmed[nameStart+1 : nameEnd])
 	evtBody := string(trimmed[nameEnd+1:])
-	return &datadogMetric{
-		name:       evtName,
-		value:      evtBody,
-		metricType: MetricEvent,
-		tags:       tags,
+	return &DatadogMetric{
+		Name:  evtName,
+		Value: evtBody,
+		Type:  MetricEvent,
+		Tags:  tags,
 	}, nil
 
 }

@@ -11,17 +11,17 @@ type DatadogMetricSuite struct {
 }
 
 func (s *DatadogMetricSuite) Test_DatadogMetric() {
-	var m DatadogMetric = &datadogMetric{
-		name:       "foo",
-		value:      "bar",
-		metricType: MetricCount,
-		tags:       []string{"baz"},
+	m := &DatadogMetric{
+		Name:  "foo",
+		Value: "bar",
+		Type:  MetricCount,
+		Tags:  []string{"baz"},
 	}
-	s.EqualValues("foo", m.Name())
-	s.EqualValues("bar", m.Value())
-	s.EqualValues(MetricCount, m.Type())
-	s.EqualValues([]string{"baz"}, m.Tags())
-	s.EqualValues("C foo bar [baz]", m.String())
+	s.EqualValues("foo", m.Name)
+	s.EqualValues("bar", m.Value)
+	s.EqualValues(MetricCount, m.Type)
+	s.EqualValues([]string{"baz"}, m.Tags)
+	s.EqualValues("COUNT foo bar [baz]", m.String())
 }
 
 type DatadogParserSuite struct {
@@ -50,11 +50,11 @@ func (s *DatadogParserSuite) Test_Parse_NoTrailingPipe() {
 func (s *DatadogParserSuite) Test_Parse_Metric_ValidWithTags() {
 	input := []byte("foo:bar|c|#baz,zap")
 	m, err := s.p.Parse(input)
-	s.EqualValues(&datadogMetric{
-		name:       "foo",
-		value:      "bar",
-		metricType: MetricCount,
-		tags:       []string{"baz", "zap"},
+	s.EqualValues(&DatadogMetric{
+		Name:  "foo",
+		Value: "bar",
+		Type:  MetricCount,
+		Tags:  []string{"baz", "zap"},
 	}, m)
 	s.NoError(err)
 }
@@ -62,11 +62,11 @@ func (s *DatadogParserSuite) Test_Parse_Metric_ValidWithTags() {
 func (s *DatadogParserSuite) Test_Parse_ServiceCheck_ValidWithTags() {
 	input := []byte("_sc|foobar|0|#baz,zap")
 	m, err := s.p.Parse(input)
-	s.EqualValues(&datadogMetric{
-		name:       "foobar",
-		value:      string(ServiceCheckOK),
-		metricType: MetricServiceCheck,
-		tags:       []string{"baz", "zap"},
+	s.EqualValues(&DatadogMetric{
+		Name:  "foobar",
+		Value: string(ServiceCheckOK),
+		Type:  MetricServiceCheck,
+		Tags:  []string{"baz", "zap"},
 	}, m)
 	s.NoError(err)
 }
@@ -74,11 +74,11 @@ func (s *DatadogParserSuite) Test_Parse_ServiceCheck_ValidWithTags() {
 func (s *DatadogParserSuite) Test_Parse_Event_ValidWithTags() {
 	input := []byte("_e{3,6}:foo|barbaz|#baz,zap")
 	m, err := s.p.Parse(input)
-	s.EqualValues(&datadogMetric{
-		name:       "foo",
-		value:      "barbaz",
-		metricType: MetricEvent,
-		tags:       []string{"baz", "zap"},
+	s.EqualValues(&DatadogMetric{
+		Name:  "foo",
+		Value: "barbaz",
+		Type:  MetricEvent,
+		Tags:  []string{"baz", "zap"},
 	}, m)
 	s.NoError(err)
 }
@@ -119,11 +119,11 @@ func (s *DatadogParserSuite) Test_parseMetric_ValidNoTags() {
 	payload := []byte("foo:bar|c")
 	tags := []string(nil)
 	m, err := s.p.parseMetric(payload, tags)
-	s.EqualValues(&datadogMetric{
-		name:       "foo",
-		value:      "bar",
-		metricType: MetricCount,
-		tags:       []string(nil),
+	s.EqualValues(&DatadogMetric{
+		Name:  "foo",
+		Value: "bar",
+		Type:  MetricCount,
+		Tags:  []string(nil),
 	}, m)
 	s.NoError(err)
 }
@@ -192,11 +192,11 @@ func (s *DatadogParserSuite) Test_parseEvent_MissingMsgSep() {
 func (s *DatadogParserSuite) Test_parseEvent_ValidNoTags() {
 	input := []byte("{3,6}:foo|barbaz")
 	e, err := s.p.parseEvent(input, []string(nil))
-	s.EqualValues(&datadogMetric{
-		name:       "foo",
-		value:      "barbaz",
-		metricType: MetricEvent,
-		tags:       []string(nil),
+	s.EqualValues(&DatadogMetric{
+		Name:  "foo",
+		Value: "barbaz",
+		Type:  MetricEvent,
+		Tags:  []string(nil),
 	}, e)
 	s.NoError(err)
 }
@@ -204,11 +204,11 @@ func (s *DatadogParserSuite) Test_parseEvent_ValidNoTags() {
 func (s *DatadogParserSuite) Test_parseEvent_ValidEmpty() {
 	input := []byte("{0,0}:|")
 	e, err := s.p.parseEvent(input, []string(nil))
-	s.EqualValues(&datadogMetric{
-		name:       "",
-		value:      "",
-		metricType: MetricEvent,
-		tags:       []string(nil),
+	s.EqualValues(&DatadogMetric{
+		Name:  "",
+		Value: "",
+		Type:  MetricEvent,
+		Tags:  []string(nil),
 	}, e)
 	s.NoError(err)
 }
