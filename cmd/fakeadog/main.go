@@ -63,7 +63,7 @@ func main() {
 		for _, sp := range splitted {
 			m, err := p.Parse(sp)
 			if err != nil {
-				log.Error("parsing payload %q: %s", string(payload), err)
+				log.Errorf("parsing payload %q: %s", string(payload), err)
 				continue
 			}
 			log.WithFields(logrus.Fields{
