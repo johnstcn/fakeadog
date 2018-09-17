@@ -104,6 +104,7 @@ var sepColon = []byte(":")
 var sepComma = []byte(",")
 var sepHash = []byte("#")
 var sepPipe = []byte("|")
+var sepNewLine = []byte("\n")
 
 var typeGauge = []byte("g")
 var typeCount = []byte("c")
@@ -132,6 +133,7 @@ func (d *DatadogMetric) String() string {
 // DatadogParser parses datadog metrics.
 type DatadogParser interface {
 	Parse(payload []byte) (*DatadogMetric, error)
+	ParseMulti(payload []byte) ([]*DatadogMetric, []error)
 }
 
 // datadogParser implements DatadogParser
@@ -144,7 +146,7 @@ func NewDatadogParser() DatadogParser {
 	return &datadogParser{}
 }
 
-// Parse parses a raw UDP message and returns a DatadogMetric or an error if parsing unsuccessful.
+// Parse parses a payload containing a single metric.
 func (p *datadogParser) Parse(payload []byte) (*DatadogMetric, error) {
 	var m *DatadogMetric
 	var err error
@@ -174,6 +176,22 @@ func (p *datadogParser) Parse(payload []byte) (*DatadogMetric, error) {
 	}
 
 	return m, nil
+}
+
+// ParseMulti parses a payload containing potentially more than one metric.
+// Returns equal amounts of *DatadogMetrics and errors.
+func (p *datadogParser) ParseMulti(payload []byte) ([]*DatadogMetric, []error) {
+	metrics := make([]*DatadogMetric, 0)
+	errs := make([]error, 0)
+	for _, sp := range splitPayload(payload) {
+		if len(sp) == 0 {
+			continue
+		}
+		m, err := p.Parse(sp)
+		metrics = append(metrics, m)
+		errs = append(errs, err)
+	}
+	return metrics, errs
 }
 
 // parseMetric parses a Datadog metric from trimmed, assuming tags have already been stripped.
@@ -330,4 +348,8 @@ func (p *datadogParser) typeOfServiceCheck(b []byte) (ServiceCheckStatus, error)
 	}
 
 	return "", ErrInvalidServiceCheckType
+}
+
+func splitPayload(p []byte) ([][]byte) {
+	return bytes.Split(p, sepNewLine)
 }

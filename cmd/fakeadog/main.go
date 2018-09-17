@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"flag"
 	"fmt"
 	"net"
@@ -59,18 +58,17 @@ func main() {
 		}
 		payload := buf[:n]
 		// payload may contain multiple metrics separated by newlines
-		splitted := bytes.Split(payload, []byte("\n"))
-		for _, sp := range splitted {
-			m, err := p.Parse(sp)
-			if err != nil {
+		ms, errs := p.ParseMulti(payload)
+		for i := range errs {
+			if errs[i] != nil {
 				log.Errorf("parsing payload %q: %s", string(payload), err)
 				continue
 			}
 			log.WithFields(logrus.Fields{
-				"type":  m.Type,
-				"name":  m.Name,
-				"value": m.Value,
-				"tags":  m.Tags,
+				"type":  ms[i].Type,
+				"name":  ms[i].Name,
+				"value": ms[i].Value,
+				"tags":  ms[i].Tags,
 			}).Info("received datadog metric")
 		}
 	}

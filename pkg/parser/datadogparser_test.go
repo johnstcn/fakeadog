@@ -40,6 +40,31 @@ func (s *DatadogParserSuite) Test_Parse_Empty() {
 	s.EqualValues(ErrEmptyPayload, err)
 }
 
+func (s *DatadogParserSuite) Test_ParseMulti() {
+	input := []byte("foo:1|c|#baz,zap\n\nnotavalidmetric\nbar:2|c")
+	ms, errs := s.p.ParseMulti(input)
+
+	s.Require().Len(errs, 3)
+	s.Require().Len(ms, 3)
+
+	s.Require().Nil(errs[0])
+	s.Require().Nil(errs[2])
+	s.Require().NotNil(errs[1])
+
+	s.Require().NotNil(ms[0])
+	s.Require().NotNil(ms[2])
+	s.Require().Nil(ms[1])
+
+	s.Equal(MetricCount, ms[0].Type)
+	s.Equal(MetricCount, ms[2].Type)
+
+	s.Equal("foo", ms[0].Name)
+	s.Equal("bar", ms[2].Name)
+
+	s.Equal("1", ms[0].Value)
+	s.Equal("2", ms[2].Value)
+}
+
 func (s *DatadogParserSuite) Test_GoStatsd_Valid_Metric() {
 	input := []byte("modprox-registry.heartbeat-accepted:1|c")
 	m, err := s.p.Parse(input)
