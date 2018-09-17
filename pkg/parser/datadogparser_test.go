@@ -40,11 +40,15 @@ func (s *DatadogParserSuite) Test_Parse_Empty() {
 	s.EqualValues(ErrEmptyPayload, err)
 }
 
-func (s *DatadogParserSuite) Test_Parse_NoTrailingPipe() {
-	input := []byte("foo:bar|c")
+func (s *DatadogParserSuite) Test_GoStatsd_Valid_Metric() {
+	input := []byte("modprox-registry.heartbeat-accepted:1|c")
 	m, err := s.p.Parse(input)
-	s.Nil(m)
-	s.EqualValues(err, ErrNoTrailingPipe)
+	s.Require().NoError(err)
+	s.Require().NotNil(m)
+	s.Equal(MetricCount, m.Type)
+	s.Equal("modprox-registry.heartbeat-accepted", m.Name)
+	s.Equal("1", m.Value)
+	s.Empty(m.Tags)
 }
 
 func (s *DatadogParserSuite) Test_Parse_Metric_ValidWithTags() {

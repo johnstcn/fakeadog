@@ -156,11 +156,7 @@ func (p *datadogParser) Parse(payload []byte) (*DatadogMetric, error) {
 		return nil, ErrEmptyPayload
 	}
 
-	if !bytes.HasSuffix(trimmed, sepPipe) {
-		return nil, ErrNoTrailingPipe
-	}
-
-	// trim trailing pipe
+	// trim trailing pipe if it exists
 	trimmed = bytes.TrimSuffix(trimmed, sepPipe)
 
 	if bytes.HasPrefix(trimmed, prefixServiceCheck) {
